@@ -6,6 +6,10 @@ import requests
 from config import Config
 from logger import logger
 
+push_plus_token = "e767c057f8c64a2cb64f96bdc34f63d8"
+push_plus_group_token = ""
+group_code = ""
+login_case = ""
 
 class Shana(object):
     headers = {
@@ -34,6 +38,7 @@ class Shana(object):
 
     # 提交用户名和密码, 获取ticket
     def step1(self) -> str:
+        global login_case
         logger.info("将以 %s/%s 登录" % (Config.login_name, Config.login_password))
         params = {
             "callback": "staticLogin_JSONPMethod",
@@ -63,9 +68,11 @@ class Shana(object):
         obj = json.loads(text)
         if "ticket" in obj["data"]:
             logger.info("登录成功, 正在设置cookie...")
+            login_case = "登录成功, 正在设置cookie..."
             return obj["data"]["ticket"]
         else:
             logger.error("登录失败, 短期内登录失败次数过多, 服务器已开启验证码, 请在1-3天后再试...")
+            login_case = "登录失败, 短期内登录失败次数过多, 服务器已开启验证码, 请在1-3天后再试..."
             return ""
 
     # 设置cookie
@@ -171,6 +178,7 @@ class Shana(object):
         r = requests.post(url, params=params, cookies=self.cookie)
         obj = json.loads(r.text)
         logger.info(obj["Message"])
+        return obj["Message"]
 
     # 查询当前积分
     def step8(self):
@@ -184,20 +192,50 @@ class Shana(object):
         attach = obj["Attach"]
         jifen = json.loads(attach)["Jifen"]
         logger.info("当前积分为: %d" % jifen)
+        return "当前积分为: %d" % jifen
+
+    def push_plus(self,push_content):
+        global push_plus_token
+        global push_plus_group_token
+        if push_plus_token is None or push_plus_group_token is None:
+            return
+        logger.info("推送开始")
+        if push_plus_token:
+            url = "http://pushplus.hxtrip.com/send/"
+            params = {
+                "token": push_plus_token,
+                "title":"FF14积分商城签到",
+                "content":push_content
+            }
+            r = requests.post(url, params=params)
+            logger.info(r.text)
+        if push_plus_group_token:
+            url = "http://pushplus.hxtrip.com/send/"
+            params = {
+                "token": push_plus_group_token,
+                "title":"FF14积分商城签到",
+                "content":push_content,
+                "topic": group_code
+            }
+            requests.post(url, params=params)
 
     def go(self):
+        push_plus_content = ''
         ticket = self.step1()
         if ticket == "":
+            self.push_plus(push_plus_content+login_case)
             return
         self.step2()
         self.step3()
         self.step4(ticket)
         role = self.step5()
         if role == "":
+            self.push_plus(push_plus_content + "查询角色列表失败")
             return
         self.step6(role)
-        self.step7()
-        self.step8()
+        sign_result_string = self.step7()
+        point_string = self.step8()
+        self.push_plus(push_plus_content+sign_result_string+point_string)
         time.sleep(5)
 
     def main_handler(self):
