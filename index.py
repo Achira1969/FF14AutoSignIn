@@ -200,6 +200,6 @@ class Shana(object):
         self.step8()
         time.sleep(5)
 
-
-if __name__ == "__main__":
-    Shana().go()
+    def main_handler(self):
+        if __name__ == "__main__":
+            Shana().go()
