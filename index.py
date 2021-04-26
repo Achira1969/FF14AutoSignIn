@@ -5,27 +5,13 @@ import requests
 
 
 from logger import logger
+from config import Config
 
 push_plus_token = "e767c057f8c64a2cb64f96bdc34f63d8"
 push_plus_group_token = ""
 group_code = ""
 login_case = ""
 
-class Config(object):
-    # 登录名
-    login_name = "abc@163.com"
-
-    # 登录密码
-    login_password = "answers"
-
-    # 大区名(陆行鸟 or 莫古力 or 猫小胖)
-    area_name = "猫小胖"
-
-    # 服务器名
-    server_name = "紫水栈桥"
-
-    # 角色名
-    role_name = "南五猫"
 
 class Shana(object):
     headers = {
@@ -251,7 +237,7 @@ class Shana(object):
         self.step6(role)
         sign_result_string = self.step7()
         point_string = self.step8()
-        self.push_plus(push_plus_content+sign_result_string+point_string)
+        self.push_plus(push_plus_content+Config.role_name+sign_result_string+point_string)
         time.sleep(5)
 
 def main_handler(event,context):
