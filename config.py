@@ -13,3 +13,6 @@ class Config(object):
 
     # 角色名
     role_name = "南五猫"
+
+# 账号
+# achira@126.com&pa1sh1p1ng&猫小胖&紫水栈桥&魔法法

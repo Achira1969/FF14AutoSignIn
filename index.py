@@ -7,7 +7,7 @@ import requests
 from logger import logger
 from config import Config
 
-push_plus_token = "e767c057f8c64a2cb64f96bdc34f63d8"
+push_plus_token = ""
 push_plus_group_token = ""
 group_code = ""
 login_case = ""
